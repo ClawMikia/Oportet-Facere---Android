@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/dashboardFragment" android:icon="@drawable/ic_nav_dashboard" android:title="@string/nav_dashboard" />
+    <item android:id="@+id/checklistFragment" android:icon="@drawable/ic_nav_checklist" android:title="@string/nav_checklist" />
+    <item android:id="@+id/pasteFragment" android:icon="@drawable/ic_nav_paste" android:title="@string/nav_paste" />
+    <item android:id="@+id/achievementsFragment" android:icon="@drawable/ic_nav_achievements" android:title="@string/nav_achievements" />
+    <item android:id="@+id/statisticsFragment" android:icon="@drawable/ic_nav_stats" android:title="@string/nav_stats" />
+</menu>

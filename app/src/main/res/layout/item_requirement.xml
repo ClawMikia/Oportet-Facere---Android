@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="4dp"
+    app:cardBackgroundColor="@color/bg_card"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <!-- Cyberpunk checkbox -->
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/cb_complete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:button="@null"
+            android:background="@drawable/selector_checkbox"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Requirement Title"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:id="@+id/layout_badges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tv_status_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PENDING"
+                    android:textColor="@color/status_pending"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.12"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:background="@drawable/bg_status_pending" />
+
+                <TextView
+                    android:id="@+id/tv_optional"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OPTIONAL"
+                    android:textColor="@color/text_muted"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="6dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_xp_reward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+50 XP"
+                    android:textColor="@color/xp_gold"
+                    android:textSize="10sp"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Note indicator + chevron -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_note_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✎"
+                android:textColor="@color/electric_blue"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_chevron"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="@color/text_muted"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Completed glow overlay (shown when done) -->
+    <View
+        android:id="@+id/view_completed_glow"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/status_completed"
+        android:visibility="gone" />
+
+</androidx.cardview.widget.CardView>

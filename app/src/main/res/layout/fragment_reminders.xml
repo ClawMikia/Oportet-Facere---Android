@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_deep_black">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="@color/bg_surface"
+        android:paddingStart="20dp" android:paddingEnd="20dp"
+        android:paddingTop="20dp" android:paddingBottom="16dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="MISSION ALERTS" android:textColor="@color/text_primary"
+            android:textSize="22sp" android:textStyle="bold" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_reminder"
+            android:layout_width="wrap_content" android:layout_height="40dp"
+            android:text="+ Schedule Alert" android:textSize="13sp"
+            android:backgroundTint="@color/transparent"
+            android:background="@drawable/bg_button_neon"
+            android:textColor="@color/bg_deep_black"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_reminders"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="8dp"
+        android:paddingBottom="80dp" android:clipToPadding="false" android:overScrollMode="never" />
+    <TextView android:id="@+id/tv_empty"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="No active alerts.\nSchedule reminders for your requirements."
+        android:textColor="@color/text_muted" android:textSize="14sp"
+        android:gravity="center" android:padding="40dp" android:visibility="gone" />
+</LinearLayout>

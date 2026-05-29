@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oportet Facere</string>
+    <string name="app_tagline">Employment Mission Tracker</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Command Center</string>
+    <string name="nav_checklist">Missions</string>
+    <string name="nav_paste">Upload Data</string>
+    <string name="nav_achievements">Badges</string>
+    <string name="nav_stats">Intel</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">COMMAND CENTER</string>
+    <string name="dashboard_welcome">Welcome back, Agent</string>
+    <string name="dashboard_progress">Mission Progress</string>
+    <string name="dashboard_completed">Completed</string>
+    <string name="dashboard_pending">Pending</string>
+    <string name="dashboard_streak">Day Streak</string>
+    <string name="dashboard_level">LEVEL</string>
+    <string name="dashboard_xp">XP</string>
+
+    <!-- Parse Screen -->
+    <string name="parse_title">UPLOAD REQUIREMENTS</string>
+    <string name="parse_hint">Paste your employment requirements here...\n\nExample:\nPre-Employment Medical (PEME)\n• Complete Physical Examination\n• Urinalysis\n\nNBI Clearance\nBIR 2316</string>
+    <string name="parse_button">SCAN &amp; ANALYZE</string>
+    <string name="parse_clear">Clear</string>
+    <string name="parse_success">Requirements successfully parsed!</string>
+    <string name="parse_save">DEPLOY MISSION</string>
+    <string name="parse_preview">PARSED RESULTS</string>
+
+    <!-- Checklist -->
+    <string name="checklist_title">ACTIVE MISSIONS</string>
+    <string name="checklist_empty">No missions found.\nUpload requirements to begin.</string>
+    <string name="checklist_search_hint">Search requirements…</string>
+    <string name="checklist_filter_all">All</string>
+    <string name="checklist_filter_pending">Pending</string>
+    <string name="checklist_filter_completed">Completed</string>
+    <string name="checklist_filter_overdue">Overdue</string>
+
+    <!-- Details -->
+    <string name="details_title">MISSION BRIEF</string>
+    <string name="details_mark_complete">MARK COMPLETE</string>
+    <string name="details_notes_title">MISSION NOTES</string>
+    <string name="details_add_note">Add note…</string>
+    <string name="details_save_note">SAVE</string>
+
+    <!-- Achievements -->
+    <string name="achievements_title">ACHIEVEMENT HQ</string>
+    <string name="achievements_unlocked">Unlocked</string>
+    <string name="achievements_locked">Locked</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">INTEL REPORT</string>
+    <string name="stats_completion_rate">Completion Rate</string>
+    <string name="stats_total_xp">Total XP Earned</string>
+    <string name="stats_level">Current Level</string>
+    <string name="stats_streak">Longest Streak</string>
+
+    <!-- Reminders -->
+    <string name="reminders_title">MISSION ALERTS</string>
+    <string name="reminders_add">Schedule Alert</string>
+    <string name="reminders_empty">No active alerts.\nSchedule reminders for your requirements.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">SYSTEM CONFIG</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_about">About ReqSync</string>
+    <string name="settings_version">Version 1.0.0</string>
+    <string name="settings_clear_data">Clear All Data</string>
+    <string name="settings_clear_confirm">This will permanently delete all missions and progress. Continue?</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">MISSION CONTROL</string>
+    <string name="onboarding_desc_1">Track all your employment requirements in one cyberpunk command center.</string>
+    <string name="onboarding_title_2">SMART PARSING</string>
+    <string name="onboarding_desc_2">Paste raw requirement lists and let ReqSync automatically organize them into missions.</string>
+    <string name="onboarding_title_3">LEVEL UP</string>
+    <string name="onboarding_desc_3">Earn XP, unlock achievements, and rise through the ranks as you complete requirements.</string>
+    <string name="onboarding_get_started">INITIATE MISSION</string>
+    <string name="onboarding_next">NEXT</string>
+    <string name="onboarding_skip">Skip</string>
+
+    <!-- Status labels -->
+    <string name="status_pending">PENDING</string>
+    <string name="status_in_progress">IN PROGRESS</string>
+    <string name="status_completed">COMPLETED</string>
+    <string name="status_overdue">OVERDUE</string>
+    <string name="status_skipped">SKIPPED</string>
+
+    <!-- XP events -->
+    <string name="xp_gained">+%d XP</string>
+    <string name="level_up">LEVEL UP!</string>
+    <string name="achievement_unlocked">Achievement Unlocked!</string>
+
+    <!-- Errors -->
+    <string name="error_empty_text">Please paste requirement text first.</string>
+    <string name="error_parse_failed">Could not parse requirements. Try a different format.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+
+    <!-- Actions -->
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_retry">Retry</string>
+</resources>

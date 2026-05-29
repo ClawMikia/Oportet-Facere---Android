@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">16dp</dimen>
+    <dimen name="space_lg">24dp</dimen>
+    <dimen name="space_xl">32dp</dimen>
+    <dimen name="space_xxl">48dp</dimen>
+
+    <!-- Card -->
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+
+    <!-- Text -->
+    <dimen name="text_xs">10sp</dimen>
+    <dimen name="text_sm">12sp</dimen>
+    <dimen name="text_md">14sp</dimen>
+    <dimen name="text_lg">16sp</dimen>
+    <dimen name="text_xl">20sp</dimen>
+    <dimen name="text_xxl">24sp</dimen>
+    <dimen name="text_display">32sp</dimen>
+
+    <!-- Nav bar -->
+    <dimen name="bottom_nav_height">64dp</dimen>
+
+    <!-- Progress bar -->
+    <dimen name="progress_height">6dp</dimen>
+    <dimen name="progress_height_thick">10dp</dimen>
+
+    <!-- Icon sizes -->
+    <dimen name="icon_sm">20dp</dimen>
+    <dimen name="icon_md">24dp</dimen>
+    <dimen name="icon_lg">32dp</dimen>
+    <dimen name="icon_xl">48dp</dimen>
+    <dimen name="icon_badge">64dp</dimen>
+
+    <!-- Checkbox -->
+    <dimen name="checkbox_size">24dp</dimen>
+
+    <!-- Glow blur radius -->
+    <dimen name="glow_radius">8dp</dimen>
+</resources>

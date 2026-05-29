@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Background ───────────────────────────────────────────── -->
+    <color name="bg_deep_black">#080B12</color>
+    <color name="bg_dark_graphite">#0D1117</color>
+    <color name="bg_card">#111827</color>
+    <color name="bg_card_elevated">#1A2236</color>
+    <color name="bg_surface">#0F1923</color>
+
+    <!-- ── Neon Primary ─────────────────────────────────────────── -->
+    <color name="neon_cyan">#00F5FF</color>
+    <color name="neon_cyan_dim">#0099A8</color>
+    <color name="neon_cyan_alpha30">#4D00F5FF</color>
+    <color name="neon_cyan_alpha10">#1A00F5FF</color>
+
+    <!-- ── Purple Secondary ─────────────────────────────────────── -->
+    <color name="purple_glow">#BF00FF</color>
+    <color name="purple_dim">#7A00AA</color>
+    <color name="purple_alpha30">#4DBF00FF</color>
+
+    <!-- ── Electric Blue Accent ─────────────────────────────────── -->
+    <color name="electric_blue">#0080FF</color>
+    <color name="electric_blue_dim">#004D99</color>
+
+    <!-- ── Status Colors ────────────────────────────────────────── -->
+    <color name="status_completed">#00FF9F</color>
+    <color name="status_pending">#FFD700</color>
+    <color name="status_overdue">#FF3D3D</color>
+    <color name="status_in_progress">#FF9F00</color>
+    <color name="status_skipped">#808080</color>
+
+    <!-- ── Priority Colors ──────────────────────────────────────── -->
+    <color name="priority_critical">#FF3D3D</color>
+    <color name="priority_high">#FF9F00</color>
+    <color name="priority_normal">#00F5FF</color>
+    <color name="priority_low">#808080</color>
+
+    <!-- ── Text ─────────────────────────────────────────────────── -->
+    <color name="text_primary">#F0F4FF</color>
+    <color name="text_secondary">#8B9CB8</color>
+    <color name="text_muted">#4A5568</color>
+    <color name="text_accent">#00F5FF</color>
+
+    <!-- ── Achievement / XP Colors ──────────────────────────────── -->
+    <color name="xp_gold">#FFD700</color>
+    <color name="xp_gold_dim">#A08800</color>
+    <color name="achievement_glow">#BF00FF</color>
+
+    <!-- ── Divider / Border ─────────────────────────────────────── -->
+    <color name="border_glow">#1A00F5FF</color>
+    <color name="divider">#1A2236</color>
+
+    <!-- ── Transparent ──────────────────────────────────────────── -->
+    <color name="transparent">#00000000</color>
+
+    <!-- Material theme mapping -->
+    <color name="colorPrimary">@color/neon_cyan</color>
+    <color name="colorPrimaryVariant">@color/neon_cyan_dim</color>
+    <color name="colorSecondary">@color/purple_glow</color>
+    <color name="colorSecondaryVariant">@color/purple_dim</color>
+    <color name="colorBackground">@color/bg_deep_black</color>
+    <color name="colorSurface">@color/bg_card</color>
+    <color name="colorError">#FF3D3D</color>
+    <color name="colorOnPrimary">@color/bg_deep_black</color>
+    <color name="colorOnSecondary">@color/bg_deep_black</color>
+    <color name="colorOnBackground">@color/text_primary</color>
+    <color name="colorOnSurface">@color/text_primary</color>
+    <color name="colorOnError">@color/text_primary</color>
+</resources>
