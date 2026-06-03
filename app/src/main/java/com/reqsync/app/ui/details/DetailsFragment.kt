@@ -14,6 +14,8 @@ import com.reqsync.app.data.database.entities.RequirementStatus
 import com.reqsync.app.databinding.FragmentDetailsBinding
 import com.reqsync.app.utils.toFormattedDate
 import com.reqsync.app.viewmodels.DetailsViewModel
+import com.reqsync.app.viewmodels.DialogEvent
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -42,7 +44,25 @@ class DetailsFragment : Fragment() {
         setupRecyclerView()
         observeItem()
         observeNotes()
+        observeDialogs()
         setupClickListeners()
+    }
+
+    private fun observeDialogs() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.dialogEvent.collectLatest { event ->
+                event?.let {
+                    if (it is DialogEvent.CategoryCompleted) {
+                        MaterialAlertDialogBuilder(requireContext(), com.reqsync.app.R.style.CardStyle_Cyberpunk)
+                            .setTitle("MISSION ACCOMPLISHED")
+                            .setMessage("All requirements in \"${it.categoryName}\" are now complete.")
+                            .setPositiveButton("CONFIRMED", null)
+                            .show()
+                    }
+                    viewModel.consumeDialogEvent()
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {

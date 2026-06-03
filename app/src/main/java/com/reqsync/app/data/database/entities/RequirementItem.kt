@@ -37,7 +37,8 @@ data class RequirementItem(
     val updatedAt: Long = System.currentTimeMillis(),
     val hasNote: Boolean = false,
     val hasAttachment: Boolean = false,
-    val isOptional: Boolean = false
+    val isOptional: Boolean = false,
+    val isArchived: Boolean = false
 )
 
 enum class RequirementStatus {

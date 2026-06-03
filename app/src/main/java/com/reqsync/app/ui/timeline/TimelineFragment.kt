@@ -39,6 +39,7 @@ class TimelineFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
+                adapter.statsMap = state.categoryStats
                 adapter.submitList(state.categories)
             }
         }

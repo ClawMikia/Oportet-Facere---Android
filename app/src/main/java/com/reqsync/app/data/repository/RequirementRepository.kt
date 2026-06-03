@@ -40,10 +40,22 @@ class RequirementRepository(
     suspend fun toggleCategoryExpanded(id: Long, expanded: Boolean) =
         categoryDao.setExpanded(id, expanded)
 
+    suspend fun archiveCategory(id: Long, archived: Boolean = true) =
+        categoryDao.setArchived(id, archived)
+
+    suspend fun archiveItem(id: Long, archived: Boolean = true) =
+        itemDao.setArchived(id, archived)
+
+    fun getArchivedCategories(): Flow<List<RequirementCategory>> =
+        categoryDao.getArchivedCategories()
+
     // ── Items ─────────────────────────────────────────────────────────────────
 
     fun getAllItems(): Flow<List<RequirementItem>> =
         itemDao.getAllItems()
+
+    fun getActiveItems(): Flow<List<RequirementItem>> =
+        itemDao.getActiveItems()
 
     fun getItemsByCategory(categoryId: Long): Flow<List<RequirementItem>> =
         itemDao.getItemsByCategory(categoryId)

@@ -7,6 +7,7 @@ import com.reqsync.app.data.database.entities.*
 import com.reqsync.app.data.repository.GamificationRepository
 import com.reqsync.app.data.repository.NoteRepository
 import com.reqsync.app.data.repository.RequirementRepository
+import com.reqsync.app.utils.CategoryProgressHelper
 import com.reqsync.app.utils.ReqParser
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -71,11 +72,18 @@ class ParseViewModel(application: Application) : AndroidViewModel(application) {
 data class ChecklistUiState(
     val categories: List<RequirementCategory> = emptyList(),
     val itemsByCategory: Map<Long, List<RequirementItem>> = emptyMap(),
+    val categoryStats: Map<Long, CategoryProgressHelper.CategoryStats> = emptyMap(),
     val searchQuery: String = "",
     val filterStatus: RequirementStatus? = null,
     val isLoading: Boolean = true,
-    val xpGainEvent: Int? = null   // one-shot XP animation trigger
+    val xpGainEvent: Int? = null,   // one-shot XP animation trigger
+    val dialogEvent: DialogEvent? = null
 )
+
+sealed class DialogEvent {
+    data class Archived(val title: String) : DialogEvent()
+    data class CategoryCompleted(val categoryName: String) : DialogEvent()
+}
 
 class ChecklistViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -85,14 +93,19 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _searchQuery = MutableStateFlow("")
     private val _filterStatus = MutableStateFlow<RequirementStatus?>(null)
+    private val _dialogEvent = MutableStateFlow<DialogEvent?>(null)
     private val _xpEvent = MutableStateFlow<Int?>(null)
 
     val uiState: StateFlow<ChecklistUiState> = combine(
         reqRepo.getAllCategories(),
-        reqRepo.getAllItems(),
+        reqRepo.getActiveItems(),
         _searchQuery,
-        _filterStatus
-    ) { categories, allItems, query, filter ->
+        _filterStatus,
+        _dialogEvent
+    ) { categories, allItems, query, filter, dialog ->
+        // Calculate stats based on ALL items to ensure progress is accurate even when filtered
+        val stats = CategoryProgressHelper.computeStats(categories, allItems)
+
         val filteredItems = allItems.filter { item ->
             val matchesQuery = query.isBlank() ||
                 item.title.contains(query, ignoreCase = true) ||
@@ -104,9 +117,11 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
         ChecklistUiState(
             categories = categories,
             itemsByCategory = itemsByCategory,
+            categoryStats = stats,
             searchQuery = query,
             filterStatus = filter,
-            isLoading = false
+            isLoading = false,
+            dialogEvent = dialog
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChecklistUiState())
 
@@ -120,6 +135,7 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
             val newStatus = if (item.status == RequirementStatus.COMPLETED)
                 RequirementStatus.PENDING else RequirementStatus.COMPLETED
             reqRepo.updateStatus(item.id, newStatus)
+
             if (newStatus == RequirementStatus.COMPLETED) {
                 gamRepo.addXp(item.xpReward)
                 gamRepo.incrementCompleted()
@@ -127,6 +143,14 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
                 val progress = gamRepo.getProgressOnce()
                 gamRepo.checkCompletionAchievements(progress?.totalCompleted ?: 0)
                 _xpEvent.value = item.xpReward
+
+                // Check if category is now completed
+                val currentItems = reqRepo.getItemsByCategory(item.categoryId).first()
+                val isCatComplete = currentItems.all { it.status == RequirementStatus.COMPLETED }
+                if (isCatComplete) {
+                    val cat = reqRepo.getCategoryById(item.categoryId)
+                    _dialogEvent.value = DialogEvent.CategoryCompleted(cat?.title ?: "Category")
+                }
             } else {
                 // Decrease XP when unchecking an item
                 gamRepo.removeXp(item.xpReward)
@@ -137,9 +161,26 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun consumeXpEvent() { _xpEvent.value = null }
+    fun consumeDialogEvent() { _dialogEvent.value = null }
 
     fun toggleCategoryExpanded(categoryId: Long, expanded: Boolean) {
         viewModelScope.launch { reqRepo.toggleCategoryExpanded(categoryId, expanded) }
+    }
+
+    fun archiveCategory(categoryId: Long) {
+        viewModelScope.launch {
+            val cat = reqRepo.getCategoryById(categoryId)
+            reqRepo.archiveCategory(categoryId)
+            _dialogEvent.value = DialogEvent.Archived(cat?.title ?: "Category")
+        }
+    }
+
+    fun archiveItem(itemId: Long) {
+        viewModelScope.launch {
+            val item = reqRepo.getItemById(itemId)
+            reqRepo.archiveItem(itemId)
+            _dialogEvent.value = DialogEvent.Archived(item?.title ?: "Requirement")
+        }
     }
 
     fun deleteItem(item: RequirementItem) {
@@ -162,6 +203,7 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
     private val gamRepo = app.gamificationRepository
 
     private val _itemId = MutableStateFlow<Long>(-1L)
+    private val _dialogEvent = MutableStateFlow<DialogEvent?>(null)
 
     val item: StateFlow<RequirementItem?> = _itemId
         .filter { it > 0 }
@@ -170,12 +212,15 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val dialogEvent: StateFlow<DialogEvent?> = _dialogEvent
+
     val notes: StateFlow<List<Note>> = _itemId
         .filter { it > 0 }
         .flatMapLatest { noteRepo.getNotesByItem(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setItemId(id: Long) { _itemId.value = id }
+    fun consumeDialogEvent() { _dialogEvent.value = null }
 
     fun markComplete() {
         viewModelScope.launch {
@@ -184,6 +229,14 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
             gamRepo.addXp(current.xpReward)
             gamRepo.incrementCompleted()
             gamRepo.updateStreak()
+
+            // Check if category is now completed
+            val currentItems = reqRepo.getItemsByCategory(current.categoryId).first()
+            val isCatComplete = currentItems.all { it.status == RequirementStatus.COMPLETED }
+            if (isCatComplete) {
+                val cat = reqRepo.getCategoryById(current.categoryId)
+                _dialogEvent.value = DialogEvent.CategoryCompleted(cat?.title ?: "Category")
+            }
         }
     }
 

@@ -19,5 +19,6 @@ data class RequirementCategory(
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val isExpanded: Boolean = true,
+    val isArchived: Boolean = false,
     val sessionId: Long = 0             // links to a parse session
 )

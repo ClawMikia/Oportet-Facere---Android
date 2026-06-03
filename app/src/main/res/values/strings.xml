@@ -25,6 +25,7 @@
     <string name="parse_hint">Paste your employment requirements here...\n\nExample:\nPre-Employment Medical (PEME)\n• Complete Physical Examination\n• Urinalysis\n\nNBI Clearance\nBIR 2316</string>
     <string name="parse_button">SCAN &amp; ANALYZE</string>
     <string name="parse_clear">Clear</string>
+    <string name="parse_paste">Paste</string>
     <string name="parse_success">Requirements successfully parsed!</string>
     <string name="parse_save">DEPLOY MISSION</string>
     <string name="parse_preview">PARSED RESULTS</string>

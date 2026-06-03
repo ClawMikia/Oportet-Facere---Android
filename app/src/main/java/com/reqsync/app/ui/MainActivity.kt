@@ -6,6 +6,7 @@ import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.reqsync.app.R
 import com.reqsync.app.databinding.ActivityMainBinding
@@ -26,6 +27,23 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNav.setupWithNavController(navController)
 
+        // Ensure navigation works correctly by explicitly handling it
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            val options = androidx.navigation.NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setRestoreState(true)
+                .setPopUpTo(navController.graph.startDestinationId, inclusive = false, saveState = true)
+                .build()
+            
+            try {
+                navController.navigate(item.itemId, null, options)
+                true
+            } catch (e: Exception) {
+                // Fallback to standard behavior if specialized navigation fails
+                NavigationUI.onNavDestinationSelected(item, navController)
+            }
+        }
+
         // Hide bottom nav on detail screens
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
@@ -37,6 +55,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     /** Called by fragments to show a floating XP gain animation. */

@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.reqsync.app.data.database.dao.*
 import com.reqsync.app.data.database.entities.*
 import com.reqsync.app.data.database.migrations.MIGRATION_1_2
+import com.reqsync.app.data.database.migrations.MIGRATION_2_3
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
         Reminder::class,
         Note::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -47,7 +48,8 @@ abstract class ReqSyncDatabase : RoomDatabase() {
                     "reqsync_database"
                 )
                     .addCallback(DatabaseCallback())
-                    // .addMigrations(MIGRATION_1_2) // enable when needed
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

@@ -25,7 +25,9 @@ import com.reqsync.app.utils.toColorInt
 class ChecklistAdapter(
     private val onItemChecked: (RequirementItem) -> Unit,
     private val onItemClicked: (RequirementItem) -> Unit,
-    private val onCategoryToggled: (RequirementCategory, Boolean) -> Unit
+    private val onItemArchived: (RequirementItem) -> Unit,
+    private val onCategoryToggled: (RequirementCategory, Boolean) -> Unit,
+    private val onCategoryArchived: (RequirementCategory) -> Unit
 ) : ListAdapter<ChecklistAdapter.ListItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     /** Updated externally whenever item counts change. */
@@ -94,6 +96,10 @@ class ChecklistAdapter(
             binding.layoutHeader.setOnClickListener {
                 onCategoryToggled(category, !category.isExpanded)
             }
+
+            binding.btnArchive.setOnClickListener {
+                onCategoryArchived(category)
+            }
         }
     }
 
@@ -150,6 +156,7 @@ class ChecklistAdapter(
 
             // Click listeners
             binding.cbComplete.setOnCheckedChangeListener { _, _ -> onItemChecked(item) }
+            binding.btnArchiveItem.setOnClickListener { onItemArchived(item) }
             binding.root.setOnClickListener {
                 val anim = AnimationUtils.loadAnimation(it.context, R.anim.item_slide_in)
                 it.startAnimation(anim)

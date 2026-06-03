@@ -18,6 +18,8 @@ import com.reqsync.app.data.database.entities.RequirementStatus
 import com.reqsync.app.databinding.FragmentChecklistBinding
 import com.reqsync.app.ui.MainActivity
 import com.reqsync.app.viewmodels.ChecklistViewModel
+import com.reqsync.app.viewmodels.DialogEvent
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -49,8 +51,14 @@ class ChecklistFragment : Fragment() {
                 val bundle = android.os.Bundle().apply { putLong("itemId", item.id) }
                 findNavController().navigate(R.id.action_checklist_to_details, bundle)
             },
+            onItemArchived = { item ->
+                viewModel.archiveItem(item.id)
+            },
             onCategoryToggled = { category, expanded ->
                 viewModel.toggleCategoryExpanded(category.id, expanded)
+            },
+            onCategoryArchived = { category ->
+                viewModel.archiveCategory(category.id)
             }
         )
         binding.rvChecklist.apply {
@@ -110,19 +118,44 @@ class ChecklistFragment : Fragment() {
             viewModel.uiState.collectLatest { state ->
                 if (state.isLoading) return@collectLatest
 
-                // Compute per-category stats
-                val allItems = state.itemsByCategory.values.flatten()
-                checklistAdapter.statsMap = com.reqsync.app.utils.CategoryProgressHelper
-                    .computeStats(state.categories, allItems)
+                // Handle dialog events
+                state.dialogEvent?.let { event ->
+                    showAestheticDialog(event)
+                    viewModel.consumeDialogEvent()
+                }
+
+                // Use pre-computed stats from ViewModel (Request 1 fix)
+                checklistAdapter.statsMap = state.categoryStats
 
                 // Build flat list: category header + items for each category
                 val listItems = mutableListOf<ChecklistAdapter.ListItem>()
                 state.categories.forEach { category ->
-                    listItems.add(ChecklistAdapter.ListItem.CategoryHeader(category))
-                    if (category.isExpanded) {
+                    val stats = state.categoryStats[category.id]
+                    val totalInCat = stats?.total ?: 0
+
+                    // Flattening logic: Only flatten if it's NOT the "Others" category
+                    // because the user specifically asked for "Others" to be a category.
+                    val isOthers = category.title.startsWith("Others - ")
+                    
+                    if (totalInCat == 1 && !isOthers) {
                         val items = state.itemsByCategory[category.id] ?: emptyList()
-                        items.forEach { item ->
-                            listItems.add(ChecklistAdapter.ListItem.RequirementRow(item))
+                        if (items.isNotEmpty()) {
+                            // Show the single item directly, skipping the header
+                            listItems.add(ChecklistAdapter.ListItem.RequirementRow(items[0]))
+                        }
+                    } else if (totalInCat >= 1) {
+                        // Multi-item category or single-item "Others": show header then items if expanded
+                        listItems.add(ChecklistAdapter.ListItem.CategoryHeader(category))
+                        if (category.isExpanded) {
+                            val items = state.itemsByCategory[category.id] ?: emptyList()
+                            items.forEach { item ->
+                                listItems.add(ChecklistAdapter.ListItem.RequirementRow(item))
+                            }
+                        }
+                    } else {
+                        // Category with 0 items: Show header so user can see/manage it.
+                        if (state.searchQuery.isBlank() && state.filterStatus == null) {
+                            listItems.add(ChecklistAdapter.ListItem.CategoryHeader(category))
                         }
                     }
                 }
@@ -130,11 +163,30 @@ class ChecklistFragment : Fragment() {
                 checklistAdapter.submitList(listItems)
 
                 // Empty state
-                val hasContent = state.categories.isNotEmpty()
+                val hasContent = listItems.isNotEmpty()
                 binding.rvChecklist.visibility = if (hasContent) View.VISIBLE else View.GONE
                 binding.layoutEmpty.visibility = if (!hasContent) View.VISIBLE else View.GONE
             }
         }
+    }
+
+    private fun showAestheticDialog(event: DialogEvent) {
+        val (title, message) = when (event) {
+            is DialogEvent.Archived -> Pair(
+                "MISSION ARCHIVED",
+                "\"${event.title}\" has been moved to the archives."
+            )
+            is DialogEvent.CategoryCompleted -> Pair(
+                "MISSION ACCOMPLISHED",
+                "All requirements in \"${event.categoryName}\" are now complete."
+            )
+        }
+
+        MaterialAlertDialogBuilder(requireContext(), R.style.CardStyle_Cyberpunk)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("CONFIRMED", null)
+            .show()
     }
 
     private fun observeXpEvents() {

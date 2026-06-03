@@ -58,6 +58,7 @@ class StatisticsFragment : Fragment() {
                     binding.tvXpNextLevel.text = "${nextLevelXp - progress.totalXp} XP to next level"
                 }
 
+                categoryStatAdapter.statsMap = state.categoryStats
                 categoryStatAdapter.submitList(state.categories)
             }
         }

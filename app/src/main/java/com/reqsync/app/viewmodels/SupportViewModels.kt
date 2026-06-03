@@ -7,6 +7,7 @@ import com.reqsync.app.data.database.entities.*
 import com.reqsync.app.data.repository.GamificationRepository
 import com.reqsync.app.data.repository.ReminderRepository
 import com.reqsync.app.data.repository.RequirementRepository
+import com.reqsync.app.utils.CategoryProgressHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -45,6 +46,7 @@ data class StatisticsUiState(
     val completedItems: Int = 0,
     val pendingItems: Int = 0,
     val categories: List<RequirementCategory> = emptyList(),
+    val categoryStats: Map<Long, CategoryProgressHelper.CategoryStats> = emptyMap(),
     val allItems: List<RequirementItem> = emptyList(),
     val userProgress: UserProgress? = null,
     val completionRate: Float = 0f
@@ -56,17 +58,19 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
     private val gamRepo = app.gamificationRepository
 
     val uiState: StateFlow<StatisticsUiState> = combine(
-        reqRepo.getTotalCount(),
-        reqRepo.getCompletedCount(),
         reqRepo.getAllCategories(),
-        reqRepo.getAllItems(),
+        reqRepo.getActiveItems(),
         gamRepo.getProgress()
-    ) { total, completed, categories, items, progress ->
+    ) { categories, items, progress ->
+        val total = items.size
+        val completed = items.count { it.status == RequirementStatus.COMPLETED }
+        val stats = CategoryProgressHelper.computeStats(categories, items)
         StatisticsUiState(
             totalItems = total,
             completedItems = completed,
             pendingItems = total - completed,
             categories = categories,
+            categoryStats = stats,
             allItems = items,
             userProgress = progress,
             completionRate = if (total > 0) completed.toFloat() / total else 0f

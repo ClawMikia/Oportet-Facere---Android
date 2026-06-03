@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RequirementCategoryDao {
 
-    @Query("SELECT * FROM requirement_categories ORDER BY sortOrder ASC, createdAt DESC")
+    @Query("SELECT * FROM requirement_categories WHERE isArchived = 0 ORDER BY sortOrder ASC, createdAt DESC")
     fun getAllCategories(): Flow<List<RequirementCategory>>
 
-    @Query("SELECT * FROM requirement_categories WHERE sessionId = :sessionId ORDER BY sortOrder ASC")
+    @Query("SELECT * FROM requirement_categories WHERE isArchived = 1 ORDER BY sortOrder ASC, createdAt DESC")
+    fun getArchivedCategories(): Flow<List<RequirementCategory>>
+
+    @Query("SELECT * FROM requirement_categories WHERE sessionId = :sessionId AND isArchived = 0 ORDER BY sortOrder ASC")
     fun getCategoriesBySession(sessionId: Long): Flow<List<RequirementCategory>>
 
     @Query("SELECT * FROM requirement_categories WHERE id = :id")
@@ -38,6 +41,9 @@ interface RequirementCategoryDao {
 
     @Query("UPDATE requirement_categories SET isExpanded = :expanded WHERE id = :id")
     suspend fun setExpanded(id: Long, expanded: Boolean)
+
+    @Query("UPDATE requirement_categories SET isArchived = :archived WHERE id = :id")
+    suspend fun setArchived(id: Long, archived: Boolean)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -51,6 +57,17 @@ interface RequirementItemDao {
 
     @Query("SELECT * FROM requirement_items ORDER BY sortOrder ASC")
     fun getAllItems(): Flow<List<RequirementItem>>
+
+    @Query("""
+        SELECT i.* FROM requirement_items i 
+        INNER JOIN requirement_categories c ON i.categoryId = c.id 
+        WHERE c.isArchived = 0 AND i.isArchived = 0
+        ORDER BY i.sortOrder ASC
+    """)
+    fun getActiveItems(): Flow<List<RequirementItem>>
+
+    @Query("UPDATE requirement_items SET isArchived = :archived WHERE id = :id")
+    suspend fun setArchived(id: Long, archived: Boolean)
 
     @Query("SELECT * FROM requirement_items WHERE id = :id")
     suspend fun getItemById(id: Long): RequirementItem?
@@ -66,13 +83,13 @@ interface RequirementItemDao {
     """)
     fun searchItems(query: String): Flow<List<RequirementItem>>
 
-    @Query("SELECT COUNT(*) FROM requirement_items")
+    @Query("SELECT COUNT(*) FROM requirement_items WHERE isArchived = 0")
     fun getTotalCount(): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM requirement_items WHERE status = 'COMPLETED'")
+    @Query("SELECT COUNT(*) FROM requirement_items WHERE status = 'COMPLETED' AND isArchived = 0")
     fun getCompletedCount(): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM requirement_items WHERE status = 'PENDING' OR status = 'IN_PROGRESS'")
+    @Query("SELECT COUNT(*) FROM requirement_items WHERE (status = 'PENDING' OR status = 'IN_PROGRESS') AND isArchived = 0")
     fun getPendingCount(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM requirement_items WHERE categoryId = :categoryId")

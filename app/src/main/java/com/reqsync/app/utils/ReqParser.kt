@@ -103,8 +103,43 @@ object ReqParser {
 
         flushSection()
 
-        // If everything ended up in one generic section, try to split by keyword groups
-        return ParsedSession(sections = mergeSingletonGroups(sections))
+        return ParsedSession(sections = postProcessSections(sections))
+    }
+
+    private fun postProcessSections(sections: List<ParsedSection>): List<ParsedSection> {
+        val multiItemSections = mutableListOf<ParsedSection>()
+        val singleItems = mutableListOf<ParsedItem>()
+
+        sections.forEach { section ->
+            // A section with 0 items is treated as 1 item (the title itself)
+            // A section with 1 item is also treated as a single item
+            if (section.items.isEmpty()) {
+                singleItems.add(ParsedItem(section.title))
+            } else if (section.items.size == 1) {
+                // Combine section title and item title if they are different and descriptive
+                val title = if (section.title != "Other Requirements" && section.title != "Requirements") {
+                    "${section.title}: ${section.items[0].title}"
+                } else {
+                    section.items[0].title
+                }
+                singleItems.add(ParsedItem(title, section.items[0].isOptional))
+            } else {
+                multiItemSections.add(section)
+            }
+        }
+
+        if (singleItems.isNotEmpty()) {
+            val sdf = java.text.SimpleDateFormat("MMM dd, yyyy HH:mm", java.util.Locale.getDefault())
+            val timestamp = sdf.format(java.util.Date())
+            val othersSection = ParsedSection(
+                title = "Others - $timestamp",
+                items = singleItems.mapIndexed { index, item -> item.copy(sortOrder = index) },
+                sortOrder = multiItemSections.size
+            )
+            multiItemSections.add(othersSection)
+        }
+
+        return multiItemSections
     }
 
     private fun isHeaderLine(line: String, allLines: List<String>): Boolean {
@@ -140,18 +175,6 @@ object ReqParser {
             allText.contains("tax") || allText.contains("bir") -> "Financial Documents"
             allText.contains("school") || allText.contains("transcript") -> "Academic Records"
             else -> "Other Requirements"
-        }
-    }
-
-    private fun mergeSingletonGroups(sections: List<ParsedSection>): List<ParsedSection> {
-        if (sections.size <= 1) return sections
-        // Check if there's a large "Other Requirements" catch-all that should be split
-        return sections.map { section ->
-            if (section.title == "Other Requirements" && section.items.size > 8) {
-                // Split into two halves as separate categories isn't desirable;
-                // just keep as-is for clean UX
-                section
-            } else section
         }
     }
 

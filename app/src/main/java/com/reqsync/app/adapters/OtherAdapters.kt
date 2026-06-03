@@ -16,13 +16,17 @@ import com.reqsync.app.utils.toRelativeTime
 // CategorySummaryAdapter — dashboard category list
 // ─────────────────────────────────────────────────────────────────────────────
 class CategorySummaryAdapter(
-    private val onClick: (RequirementCategory) -> Unit
+    private val onClick: (RequirementCategory) -> Unit,
+    private val onArchive: (RequirementCategory) -> Unit
 ) : ListAdapter<RequirementCategory, CategorySummaryAdapter.VH>(
     object : DiffUtil.ItemCallback<RequirementCategory>() {
         override fun areItemsTheSame(o: RequirementCategory, n: RequirementCategory) = o.id == n.id
         override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
     }
 ) {
+    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
+        set(value) { field = value; notifyDataSetChanged() }
+
     inner class VH(val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
@@ -38,6 +42,21 @@ class CategorySummaryAdapter(
             progressCategory.progressTintList = ColorStateList.valueOf(color)
             progressBarFull.progressTintList = ColorStateList.valueOf(color)
             tvExpandIcon.text = "›"
+
+            val stats = statsMap[cat.id]
+            if (stats != null) {
+                tvProgressText.text = stats.progressText
+                tvPercent.text = "  •  ${stats.percentText}"
+                progressCategory.progress = stats.percent
+                progressBarFull.progress = stats.percent
+            } else {
+                tvProgressText.text = "0 / 0"
+                tvPercent.text = "  •  0%"
+                progressCategory.progress = 0
+                progressBarFull.progress = 0
+            }
+
+            btnArchive.setOnClickListener { onArchive(cat) }
             root.setOnClickListener { onClick(cat) }
         }
     }
@@ -173,6 +192,9 @@ class CategoryStatAdapter : ListAdapter<RequirementCategory, CategoryStatAdapter
         override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
     }
 ) {
+    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
+        set(value) { field = value; notifyDataSetChanged() }
+
     inner class VH(val binding: ItemCategoryStatBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
@@ -183,10 +205,18 @@ class CategoryStatAdapter : ListAdapter<RequirementCategory, CategoryStatAdapter
         val cat = getItem(position)
         with(holder.binding) {
             tvCatName.text = cat.title
-            tvCatProgress.text = "0%"
             val color = cat.colorTag.toColorInt()
             viewColor.backgroundTintList = ColorStateList.valueOf(color)
             progressCat.progressTintList = ColorStateList.valueOf(color)
+
+            val stats = statsMap[cat.id]
+            if (stats != null) {
+                tvCatProgress.text = stats.percentText
+                progressCat.progress = stats.percent
+            } else {
+                tvCatProgress.text = "0%"
+                progressCat.progress = 0
+            }
         }
     }
 }
@@ -200,6 +230,9 @@ class TimelineAdapter : ListAdapter<RequirementCategory, TimelineAdapter.VH>(
         override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
     }
 ) {
+    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
+        set(value) { field = value; notifyDataSetChanged() }
+
     inner class VH(val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
@@ -215,6 +248,20 @@ class TimelineAdapter : ListAdapter<RequirementCategory, TimelineAdapter.VH>(
             progressCategory.progressTintList = ColorStateList.valueOf(color)
             progressBarFull.progressTintList = ColorStateList.valueOf(color)
             tvExpandIcon.text = if (position == 0) "◉" else "○"
+            btnArchive.visibility = android.view.View.GONE
+
+            val stats = statsMap[cat.id]
+            if (stats != null) {
+                tvProgressText.text = stats.progressText
+                tvPercent.text = "  •  ${stats.percentText}"
+                progressCategory.progress = stats.percent
+                progressBarFull.progress = stats.percent
+            } else {
+                tvProgressText.text = "0 / 0"
+                tvPercent.text = "  •  0%"
+                progressCategory.progress = 0
+                progressBarFull.progress = 0
+            }
         }
     }
 }

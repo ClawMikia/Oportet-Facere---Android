@@ -88,7 +88,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Note indicator + chevron -->
+        <!-- Note indicator + archive + chevron -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -104,6 +104,16 @@
                 android:textSize="14sp"
                 android:layout_marginEnd="8dp"
                 android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/btn_archive_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⧉"
+                android:textColor="@color/text_muted"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:padding="4dp" />
 
             <TextView
                 android:id="@+id/tv_chevron"

@@ -15,6 +15,8 @@ import com.reqsync.app.databinding.FragmentDashboardBinding
 import com.reqsync.app.utils.XpUtils
 import com.reqsync.app.utils.toXpString
 import com.reqsync.app.viewmodels.DashboardViewModel
+import com.reqsync.app.viewmodels.DialogEvent
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -40,9 +42,14 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        categoryAdapter = CategorySummaryAdapter { category ->
-            findNavController().navigate(R.id.action_dashboard_to_checklist)
-        }
+        categoryAdapter = CategorySummaryAdapter(
+            onClick = { category ->
+                findNavController().navigate(R.id.action_dashboard_to_checklist)
+            },
+            onArchive = { category ->
+                viewModel.archiveCategory(category.id)
+            }
+        )
         binding.rvCategories.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = categoryAdapter
@@ -53,6 +60,12 @@ class DashboardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
                 if (state.isLoading) return@collectLatest
+
+                // Handle dialog events
+                state.dialogEvent?.let { event ->
+                    showAestheticDialog(event)
+                    viewModel.consumeDialogEvent()
+                }
 
                 // Stats
                 binding.tvCompletedCount.text = state.completedItems.toString()
@@ -80,6 +93,7 @@ class DashboardFragment : Fragment() {
                 }
 
                 // Categories
+                categoryAdapter.statsMap = state.categoryStats
                 categoryAdapter.submitList(state.categories)
 
                 // Empty state
@@ -92,6 +106,16 @@ class DashboardFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showAestheticDialog(event: DialogEvent) {
+        if (event !is DialogEvent.Archived) return
+
+        MaterialAlertDialogBuilder(requireContext(), R.style.CardStyle_Cyberpunk)
+            .setTitle("MISSION ARCHIVED")
+            .setMessage("\"${event.title}\" has been moved to the archives.")
+            .setPositiveButton("CONFIRMED", null)
+            .show()
     }
 
     private fun setupClickListeners() {

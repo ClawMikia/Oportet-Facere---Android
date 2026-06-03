@@ -84,6 +84,17 @@
                 android:max="100"
                 android:progress="0" />
 
+            <!-- Archive button -->
+            <TextView
+                android:id="@+id/btn_archive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⧉"
+                android:textColor="@color/text_muted"
+                android:textSize="18sp"
+                android:layout_marginEnd="16dp"
+                android:padding="4dp" />
+
             <!-- Expand / collapse icon -->
             <TextView
                 android:id="@+id/tv_expand_icon"
@@ -92,6 +103,7 @@
                 android:text="▼"
                 android:textColor="@color/text_muted"
                 android:textSize="12sp" />
+
         </LinearLayout>
 
         <!-- Mini progress bar at bottom of header -->

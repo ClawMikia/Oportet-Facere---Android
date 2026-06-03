@@ -1,5 +1,7 @@
 package com.reqsync.app.ui.paste
 
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -64,6 +66,15 @@ class PasteFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        binding.btnPaste.setOnClickListener {
+            val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val item = clipboard.primaryClip?.getItemAt(0)
+            val pasteData = item?.text
+            if (pasteData != null) {
+                binding.etRawInput.setText(pasteData)
+            }
+        }
+
         binding.btnClear.setOnClickListener {
             binding.etRawInput.setText("")
             viewModel.reset()
