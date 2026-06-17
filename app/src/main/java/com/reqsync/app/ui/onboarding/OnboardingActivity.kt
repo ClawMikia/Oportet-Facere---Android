@@ -2,7 +2,6 @@ package com.reqsync.app.ui.onboarding
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -23,7 +22,6 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var btnNext: TextView
     private lateinit var btnSkip: TextView
-    private lateinit var dotIndicator: LinearDotIndicator
     private lateinit var prefs: PreferencesDataStore
 
     private val pages = listOf(
@@ -224,6 +222,3 @@ class OnboardingPagerAdapter(private val pages: List<OnboardingPage>) :
 
     override fun getItemCount() = pages.size
 }
-
-// Stub — replace with a real dot indicator view if desired
-class LinearDotIndicator(ctx: android.content.Context) : View(ctx)

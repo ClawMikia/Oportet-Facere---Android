@@ -23,12 +23,6 @@ class SwipeToDeleteCallback(
         isAntiAlias = true
         typeface = Typeface.DEFAULT_BOLD
     }
-    private val cornerPaint = Paint().apply {
-        color = Color.parseColor("#FF3D3D")
-        style = Paint.Style.STROKE
-        strokeWidth = 2f
-        isAntiAlias = true
-    }
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,

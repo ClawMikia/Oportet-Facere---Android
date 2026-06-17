@@ -3,6 +3,7 @@ package com.reqsync.app.data.repository
 import com.reqsync.app.data.database.dao.*
 import com.reqsync.app.data.database.entities.*
 import kotlinx.coroutines.flow.Flow
+import kotlin.math.sqrt
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GamificationRepository
@@ -58,7 +59,7 @@ class GamificationRepository(
 
     fun calculateLevel(xp: Int): Int {
         // XP curve: level = floor(1 + sqrt(xp / 100))
-        return (1 + Math.sqrt(xp / 100.0)).toInt().coerceAtLeast(1)
+        return (1 + sqrt(xp / 100.0)).toInt().coerceAtLeast(1)
     }
 
     fun xpForNextLevel(currentLevel: Int): Int {

@@ -5,9 +5,6 @@
 *.aab
 *.dex
 
-# Files for the ART/Dalvik VM
-*.dex
-
 # Java class files
 *.class
 
@@ -43,9 +40,6 @@ proguard/
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 
-# Android Navigation Editor files
-navigation/
-
 # Backup files
 *.bak
 *.backup
@@ -61,10 +55,21 @@ ehthumbs.db
 Thumbs.db
 
 # Version control
-# .git and .gitignore should be tracked
 .svn
 .hg
 
 # Optional backup files
 *.orig
 *.rej
+
+# Room database schema exports
+/schemas/
+
+# Android profiler captures
+/captures/
+
+# Kotlin compiler output
+.kotlin/
+
+# VS Code settings
+.vscode/

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <!-- Bottom Nav Destinations -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.reqsync.app.ui.dashboard.DashboardFragment"
+        android:label="@string/nav_dashboard"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_checklist"
+            app:destination="@id/checklistFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_paste"
+            app:destination="@id/pasteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checklistFragment"
+        android:name="com.reqsync.app.ui.checklist.ChecklistFragment"
+        android:label="@string/nav_checklist"
+        tools:layout="@layout/fragment_checklist">
+        <action
+            android:id="@+id/action_checklist_to_details"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pasteFragment"
+        android:name="com.reqsync.app.ui.paste.PasteFragment"
+        android:label="@string/nav_paste"
+        tools:layout="@layout/fragment_paste">
+        <action
+            android:id="@+id/action_paste_to_checklist"
+            app:destination="@id/checklistFragment"
+            app:popUpTo="@id/checklistFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/achievementsFragment"
+        android:name="com.reqsync.app.ui.achievements.AchievementsFragment"
+        android:label="@string/nav_achievements"
+        tools:layout="@layout/fragment_achievements" />
+
+    <fragment
+        android:id="@+id/statisticsFragment"
+        android:name="com.reqsync.app.ui.statistics.StatisticsFragment"
+        android:label="@string/nav_stats"
+        tools:layout="@layout/fragment_statistics" />
+
+    <!-- Detail / Sub-screen Destinations (bottom nav hidden) -->
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.reqsync.app.ui.details.DetailsFragment"
+        android:label="@string/details_title"
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="itemId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <action
+            android:id="@+id/action_details_to_notes"
+            app:destination="@id/notesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/notesFragment"
+        android:name="com.reqsync.app.ui.notes.NotesFragment"
+        android:label="@string/details_notes_title"
+        tools:layout="@layout/fragment_notes">
+        <argument
+            android:name="itemId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+
+    <!-- Additional destinations -->
+    <fragment
+        android:id="@+id/remindersFragment"
+        android:name="com.reqsync.app.ui.reminders.RemindersFragment"
+        android:label="@string/reminders_title"
+        tools:layout="@layout/fragment_reminders" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.reqsync.app.ui.settings.SettingsFragment"
+        android:label="@string/settings_title"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/timelineFragment"
+        android:name="com.reqsync.app.ui.timeline.TimelineFragment"
+        android:label="Timeline"
+        tools:layout="@layout/fragment_timeline" />
+
+</navigation>

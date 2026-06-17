@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
-    id 'kotlin-parcelize'
 }
 
 android {
@@ -67,9 +66,8 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.6.1'
     ksp 'androidx.room:room-compiler:2.6.1'
 
-    // Lifecycle / ViewModel / LiveData
+    // Lifecycle / ViewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
 
     // Coroutines
@@ -90,12 +88,6 @@ dependencies {
 
     // ViewPager2
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
-
-    // Lottie Animations
-    implementation 'com.airbnb.android:lottie:6.3.0'
-
-    // Gson (JSON serialization)
-    implementation 'com.google.code.gson:gson:2.10.1'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
