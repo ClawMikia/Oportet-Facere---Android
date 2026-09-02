@@ -18,6 +18,7 @@ import com.reqsync.app.data.database.entities.RequirementStatus
 import com.reqsync.app.databinding.ItemCategoryBinding
 import com.reqsync.app.databinding.ItemRequirementBinding
 import com.reqsync.app.utils.CategoryProgressHelper
+import com.reqsync.app.utils.slideInToRight
 import com.reqsync.app.utils.toColorInt
 
 /**
@@ -42,8 +43,8 @@ class ChecklistAdapter(
     }
 
     companion object {
-        private const val TYPE_CATEGORY = 0
-        private const val TYPE_ITEM = 1
+        const val TYPE_CATEGORY = 0
+        const val TYPE_ITEM = 1
     }
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
@@ -78,7 +79,11 @@ class ChecklistAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is ListItem.CategoryHeader -> (holder as CategoryViewHolder).bind(item.category, item.stats)
+            is ListItem.CategoryHeader -> {
+                // Parents slide in moving to the right; sub rows use the vertical animator.
+                holder.itemView.slideInToRight(position)
+                (holder as CategoryViewHolder).bind(item.category, item.stats)
+            }
             is ListItem.RequirementRow -> (holder as ItemViewHolder).bind(item.item)
         }
     }

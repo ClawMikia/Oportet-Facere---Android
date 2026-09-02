@@ -26,3 +26,17 @@ fun View.slideInFromRight(position: Int) {
     }
     startAnimation(anim)
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Slide a parent item in moving TO THE RIGHT (enters from the left edge).
+// Used for parent category headers.
+// ─────────────────────────────────────────────────────────────────────────────
+fun View.slideInToRight(position: Int) {
+    val recycler = parent as? RecyclerView
+    if (recycler.isFlinging()) return
+
+    val anim = AnimationUtils.loadAnimation(context, R.anim.item_slide_in_from_left).apply {
+        startOffset = (position * 40L).coerceAtMost(240L)
+    }
+    startAnimation(anim)
+}

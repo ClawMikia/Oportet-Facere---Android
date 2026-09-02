@@ -58,8 +58,10 @@ class ChecklistFragment : Fragment() {
 
     private fun setupRecyclerView() {
         binding.rvChecklist.layoutManager = LinearLayoutManager(requireContext())
-        // Vertical slide for expand/collapse of sub items under a parent header.
-        binding.rvChecklist.itemAnimator = com.reqsync.app.utils.VerticalSlideItemAnimator()
+        // Sub rows slide vertically on expand/collapse; parents slide horizontally
+        // to the right (handled in onBindViewHolder via slideInToRight).
+        binding.rvChecklist.itemAnimator =
+            com.reqsync.app.utils.VerticalSlideItemAnimator(ChecklistAdapter.TYPE_CATEGORY)
         // Attach swipe-to-delete once (survives adapter swaps)
         val swipeCallback = com.reqsync.app.utils.SwipeToDeleteCallback(requireContext()) { position ->
             val item = checklistAdapter.currentList.getOrNull(position)
@@ -98,25 +100,21 @@ class ChecklistFragment : Fragment() {
         binding.chipAll.setOnClickListener {
             viewModel.setFilter(null)
             uncheckOthers("all")
-            rebuildAdapter()
             refreshList(null)
         }
         binding.chipPending.setOnClickListener {
             viewModel.setFilter(RequirementStatus.PENDING)
             uncheckOthers("pending")
-            rebuildAdapter()
             refreshList(RequirementStatus.PENDING)
         }
         binding.chipCompleted.setOnClickListener {
             viewModel.setFilter(RequirementStatus.COMPLETED)
             uncheckOthers("completed")
-            rebuildAdapter()
             refreshList(RequirementStatus.COMPLETED)
         }
         binding.chipOverdue.setOnClickListener {
             viewModel.setFilter(RequirementStatus.OVERDUE)
             uncheckOthers("overdue")
-            rebuildAdapter()
             refreshList(RequirementStatus.OVERDUE)
         }
     }
@@ -160,8 +158,8 @@ class ChecklistFragment : Fragment() {
     }
 
     // Rebuild the flat adapter list from the current ViewModel state *and* submit it.
-    // Filter + search are applied here locally. On chip taps a fresh adapter is used
-    // (see rebuildAdapter) so the previous items are gone before this submits.
+    // Filter + search are applied here locally. The diff is animated by
+    // VerticalSlideItemAnimator so parent and sub items slide when the filter changes.
     private fun refreshList(filter: RequirementStatus?) {
         val state = viewModel.uiState.value
         val query = state.searchQuery

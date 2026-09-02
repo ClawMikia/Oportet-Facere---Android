@@ -12,12 +12,21 @@ import androidx.recyclerview.widget.RecyclerView
  * (which slides them over the parent header), it animates each sub row's HEIGHT from 0
  * to full (expand) or full to 0 (collapse). Because height participates in layout, the
  * revealed rows push content downward and never overlap their parent header.
+ *
+ * Parent headers are NOT animated here — they slide horizontally via slidingInFromRight
+ * in onBindViewHolder. Only sub rows (viewType != [parentViewType]) use the vertical
+ * height animation.
  */
-class VerticalSlideItemAnimator : DefaultItemAnimator() {
+class VerticalSlideItemAnimator(
+    private val parentViewType: Int
+) : DefaultItemAnimator() {
 
     private val running = mutableMapOf<View, Pair<RecyclerView.ViewHolder, Boolean>>()
 
+    private fun isParent(holder: RecyclerView.ViewHolder) = holder.itemViewType == parentViewType
+
     override fun animateAdd(holder: RecyclerView.ViewHolder): Boolean {
+        if (isParent(holder)) return false
         val view = holder.itemView
         val target = view.height
         running[view] = holder to true
@@ -49,6 +58,7 @@ class VerticalSlideItemAnimator : DefaultItemAnimator() {
     }
 
     override fun animateRemove(holder: RecyclerView.ViewHolder): Boolean {
+        if (isParent(holder)) return false
         val view = holder.itemView
         val start = view.height.coerceAtLeast(1)
         running[view] = holder to false
