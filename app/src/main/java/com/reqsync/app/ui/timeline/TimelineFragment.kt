@@ -35,17 +35,22 @@ class TimelineFragment : Fragment() {
         binding.rvTimeline.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@TimelineFragment.adapter
+            itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
-                adapter.statsMap = state.categoryStats
-                adapter.submitList(state.categories)
+                adapter.submitList(
+                    state.categories.map { cat ->
+                        com.reqsync.app.adapters.CategoryStatItem(cat, state.categoryStats[cat.id])
+                    }
+                )
             }
         }
     }
 
     override fun onDestroyView() {
+        adapter.submitList(emptyList())
         super.onDestroyView()
         _binding = null
     }

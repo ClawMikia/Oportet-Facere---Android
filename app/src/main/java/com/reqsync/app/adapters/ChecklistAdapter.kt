@@ -1,10 +1,12 @@
 package com.reqsync.app.adapters
 
+import android.animation.ObjectAnimator
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -15,6 +17,7 @@ import com.reqsync.app.data.database.entities.RequirementItem
 import com.reqsync.app.data.database.entities.RequirementStatus
 import com.reqsync.app.databinding.ItemCategoryBinding
 import com.reqsync.app.databinding.ItemRequirementBinding
+import com.reqsync.app.utils.CategoryProgressHelper
 import com.reqsync.app.utils.toColorInt
 
 /**
@@ -30,12 +33,11 @@ class ChecklistAdapter(
     private val onCategoryArchived: (RequirementCategory) -> Unit
 ) : ListAdapter<ChecklistAdapter.ListItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    /** Updated externally whenever item counts change. */
-    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
-        set(value) { field = value; notifyDataSetChanged() }
-
     sealed class ListItem {
-        data class CategoryHeader(val category: RequirementCategory) : ListItem()
+        data class CategoryHeader(
+            val category: RequirementCategory,
+            val stats: CategoryProgressHelper.CategoryStats? = null
+        ) : ListItem()
         data class RequirementRow(val item: RequirementItem) : ListItem()
     }
 
@@ -61,9 +63,22 @@ class ChecklistAdapter(
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: List<Any>) {
+        if (payloads.isNotEmpty()) {
+            if (payloads.any { it is ListItemPayload.HEADER_STATS }) {
+                val item = getItem(position)
+                if (item is ListItem.CategoryHeader && holder is CategoryViewHolder) {
+                    holder.bind(item.category, item.stats)
+                }
+            }
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is ListItem.CategoryHeader -> (holder as CategoryViewHolder).bind(item.category)
+            is ListItem.CategoryHeader -> (holder as CategoryViewHolder).bind(item.category, item.stats)
             is ListItem.RequirementRow -> (holder as ItemViewHolder).bind(item.item)
         }
     }
@@ -72,15 +87,28 @@ class ChecklistAdapter(
     inner class CategoryViewHolder(private val binding: ItemCategoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(category: RequirementCategory) {
+        fun bind(category: RequirementCategory, stats: CategoryProgressHelper.CategoryStats?) {
             binding.tvCategoryTitle.text = category.title
             val color = category.colorTag.toColorInt()
             binding.viewColorDot.backgroundTintList = ColorStateList.valueOf(color)
             binding.progressCategory.progressTintList = ColorStateList.valueOf(color)
             binding.progressBarFull.progressTintList = ColorStateList.valueOf(color)
-            binding.tvExpandIcon.text = if (category.isExpanded) "▼" else "▶"
 
-            val stats = statsMap[category.id]
+            // Always show ▼ and use rotation to indicate state
+            binding.tvExpandIcon.text = "▼"
+            val targetRotation = if (category.isExpanded) 0f else -90f
+            val prevRotation = binding.tvExpandIcon.tag as? Float
+            if (prevRotation != null && prevRotation != targetRotation) {
+                ObjectAnimator.ofFloat(binding.tvExpandIcon, "rotation", prevRotation, targetRotation).apply {
+                    duration = 250
+                    interpolator = AccelerateDecelerateInterpolator()
+                    start()
+                }
+            } else {
+                binding.tvExpandIcon.rotation = targetRotation
+            }
+            binding.tvExpandIcon.tag = targetRotation
+
             if (stats != null) {
                 binding.tvProgressText.text = stats.progressText
                 binding.tvPercent.text = "  •  ${stats.percentText}"
@@ -177,5 +205,17 @@ class ChecklistAdapter(
 
         override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean =
             oldItem == newItem
+
+        override fun getChangePayload(oldItem: ListItem, newItem: ListItem): Any? =
+            if (areItemsTheSame(oldItem, newItem) && !areContentsTheSame(oldItem, newItem)) {
+                // Only CategoryHeader stats refresh; item rows (with status changes) rebind fully.
+                ListItemPayload.HEADER_STATS
+            } else {
+                null
+            }
+    }
+
+    sealed class ListItemPayload {
+        object HEADER_STATS : ListItemPayload()
     }
 }

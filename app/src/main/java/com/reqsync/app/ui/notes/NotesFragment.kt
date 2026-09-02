@@ -37,6 +37,7 @@ class NotesFragment : Fragment() {
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = adapter
+            itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

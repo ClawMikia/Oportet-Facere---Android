@@ -106,14 +106,9 @@ class ChecklistViewModel(application: Application) : AndroidViewModel(applicatio
         // Calculate stats based on ALL items to ensure progress is accurate even when filtered
         val stats = CategoryProgressHelper.computeStats(categories, allItems)
 
-        val filteredItems = allItems.filter { item ->
-            val matchesQuery = query.isBlank() ||
-                item.title.contains(query, ignoreCase = true) ||
-                item.description.contains(query, ignoreCase = true)
-            val matchesFilter = filter == null || item.status == filter
-            matchesQuery && matchesFilter
-        }
-        val itemsByCategory = filteredItems.groupBy { it.categoryId }
+        // Group ALL active items so the fragment can re-filter synchronously on every
+        // chip tap without waiting on the async combine emission.
+        val itemsByCategory = allItems.groupBy { it.categoryId }
         ChecklistUiState(
             categories = categories,
             itemsByCategory = itemsByCategory,

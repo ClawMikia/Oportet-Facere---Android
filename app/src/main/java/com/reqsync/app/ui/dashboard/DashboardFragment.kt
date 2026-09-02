@@ -53,6 +53,7 @@ class DashboardFragment : Fragment() {
         binding.rvCategories.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = categoryAdapter
+            itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
         }
     }
 
@@ -93,8 +94,11 @@ class DashboardFragment : Fragment() {
                 }
 
                 // Categories
-                categoryAdapter.statsMap = state.categoryStats
-                categoryAdapter.submitList(state.categories)
+                categoryAdapter.submitList(
+                    state.categories.map { cat ->
+                        com.reqsync.app.adapters.CategoryStatItem(cat, state.categoryStats[cat.id])
+                    }
+                )
 
                 // Empty state
                 if (state.categories.isEmpty()) {

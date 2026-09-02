@@ -12,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.reqsync.app.R
 import com.reqsync.app.ui.MainActivity
 import com.reqsync.app.utils.PreferencesDataStore
+import com.reqsync.app.utils.slideInFromRight
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -218,6 +219,7 @@ class OnboardingPagerAdapter(private val pages: List<OnboardingPage>) :
         tags[0].text = page.emoji
         tags[1].text = page.title
         tags[2].text = page.description
+        holder.itemView.slideInFromRight(position)
     }
 
     override fun getItemCount() = pages.size

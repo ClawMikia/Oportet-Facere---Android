@@ -34,6 +34,7 @@ class StatisticsFragment : Fragment() {
         categoryStatAdapter = CategoryStatAdapter()
         binding.rvCategoryStats.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCategoryStats.adapter = categoryStatAdapter
+        binding.rvCategoryStats.itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
@@ -58,8 +59,11 @@ class StatisticsFragment : Fragment() {
                     binding.tvXpNextLevel.text = "${nextLevelXp - progress.totalXp} XP to next level"
                 }
 
-                categoryStatAdapter.statsMap = state.categoryStats
-                categoryStatAdapter.submitList(state.categories)
+                categoryStatAdapter.submitList(
+                    state.categories.map { cat ->
+                        com.reqsync.app.adapters.CategoryStatItem(cat, state.categoryStats[cat.id])
+                    }
+                )
             }
         }
     }

@@ -47,6 +47,7 @@ class PasteFragment : Fragment() {
         binding.rvPreview.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = previewAdapter
+            itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
         }
     }
 

@@ -30,6 +30,7 @@ class AchievementsFragment : Fragment() {
         adapter = AchievementAdapter()
         binding.rvAchievements.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAchievements.adapter = adapter
+        binding.rvAchievements.itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->

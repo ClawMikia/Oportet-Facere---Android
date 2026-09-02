@@ -8,9 +8,26 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.reqsync.app.data.database.entities.*
 import com.reqsync.app.databinding.*
+import com.reqsync.app.utils.CategoryProgressHelper
+import com.reqsync.app.utils.slideInFromRight
 import com.reqsync.app.utils.toColorInt
 import com.reqsync.app.utils.toFormattedDate
 import com.reqsync.app.utils.toRelativeTime
+
+/**
+ * Shared list item that pairs a [RequirementCategory] with its pre-computed
+ * completion [CategoryProgressHelper.CategoryStats].
+ *
+ * Bundling the stats into the item — instead of holding them in a separate map
+ * whose setter calls [RecyclerView.Adapter.notifyDataSetChanged] — lets the
+ * ListAdapter's DiffUtil detect stat changes and rebind only what changed. This
+ * avoids the notifyDataSetChanged + submitList conflict that causes rebind churn
+ * and duplicate-looking rows.
+ */
+data class CategoryStatItem(
+    val category: RequirementCategory,
+    val stats: CategoryProgressHelper.CategoryStats? = null
+)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CategorySummaryAdapter — dashboard category list
@@ -18,14 +35,16 @@ import com.reqsync.app.utils.toRelativeTime
 class CategorySummaryAdapter(
     private val onClick: (RequirementCategory) -> Unit,
     private val onArchive: (RequirementCategory) -> Unit
-) : ListAdapter<RequirementCategory, CategorySummaryAdapter.VH>(
-    object : DiffUtil.ItemCallback<RequirementCategory>() {
-        override fun areItemsTheSame(o: RequirementCategory, n: RequirementCategory) = o.id == n.id
-        override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
+) : ListAdapter<CategoryStatItem, CategorySummaryAdapter.VH>(
+    object : DiffUtil.ItemCallback<CategoryStatItem>() {
+        override fun areItemsTheSame(o: CategoryStatItem, n: CategoryStatItem) =
+            o.category.id == n.category.id
+        override fun areContentsTheSame(o: CategoryStatItem, n: CategoryStatItem) = o == n
+        override fun getChangePayload(o: CategoryStatItem, n: CategoryStatItem): Any? =
+            if (areItemsTheSame(o, n) && !areContentsTheSame(o, n)) StatPayload.REFRESH else null
     }
 ) {
-    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
-        set(value) { field = value; notifyDataSetChanged() }
+    enum class StatPayload { REFRESH }
 
     inner class VH(val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -34,8 +53,21 @@ class CategorySummaryAdapter(
     )
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val cat = getItem(position)
-        with(holder.binding) {
+        holder.bind(getItem(position), animate = true)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: List<Any>) {
+        if (payloads.any { it == StatPayload.REFRESH }) {
+            holder.bind(getItem(position), animate = false)
+        } else {
+            holder.bind(getItem(position), animate = true)
+        }
+    }
+
+    private fun VH.bind(item: CategoryStatItem, animate: Boolean) {
+        val cat = item.category
+        with(binding) {
+            if (animate) itemView.slideInFromRight(absoluteAdapterPosition)
             tvCategoryTitle.text = cat.title
             val color = cat.colorTag.toColorInt()
             viewColorDot.backgroundTintList = ColorStateList.valueOf(color)
@@ -43,7 +75,7 @@ class CategorySummaryAdapter(
             progressBarFull.progressTintList = ColorStateList.valueOf(color)
             tvExpandIcon.text = "›"
 
-            val stats = statsMap[cat.id]
+            val stats = item.stats
             if (stats != null) {
                 tvProgressText.text = stats.progressText
                 tvPercent.text = "  •  ${stats.percentText}"
@@ -81,6 +113,7 @@ class PreviewCategoryAdapter : ListAdapter<com.reqsync.app.utils.ReqParser.Parse
     override fun onBindViewHolder(holder: VH, position: Int) {
         val section = getItem(position)
         with(holder.binding) {
+            holder.itemView.slideInFromRight(position)
             tvCategoryName.text = "▸ ${section.title}"
             tvItemsPreview.text = section.items.joinToString("\n") { "  • ${it.title}" }
         }
@@ -105,6 +138,7 @@ class AchievementAdapter : ListAdapter<Achievement, AchievementAdapter.VH>(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = getItem(position)
         with(holder.binding) {
+            holder.itemView.slideInFromRight(position)
             tvAchievementTitle.text = a.title
             tvAchievementDesc.text = a.description
             tvXpReward.text = "+${a.xpReward} XP"
@@ -149,6 +183,7 @@ class NoteAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val note = getItem(position)
         with(holder.binding) {
+            holder.itemView.slideInFromRight(position)
             tvNoteContent.text = note.content
             tvNoteTime.text = note.createdAt.toRelativeTime()
             btnDeleteNote.setOnClickListener { onDelete(note) }
@@ -176,6 +211,7 @@ class ReminderAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val reminder = getItem(position)
         with(holder.binding) {
+            holder.itemView.slideInFromRight(position)
             tvReminderTitle.text = reminder.title
             tvReminderTime.text = reminder.scheduledAt.toFormattedDate()
             btnDeleteReminder.setOnClickListener { onDelete(reminder) }
@@ -186,14 +222,16 @@ class ReminderAdapter(
 // ─────────────────────────────────────────────────────────────────────────────
 // CategoryStatAdapter — statistics screen breakdown
 // ─────────────────────────────────────────────────────────────────────────────
-class CategoryStatAdapter : ListAdapter<RequirementCategory, CategoryStatAdapter.VH>(
-    object : DiffUtil.ItemCallback<RequirementCategory>() {
-        override fun areItemsTheSame(o: RequirementCategory, n: RequirementCategory) = o.id == n.id
-        override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
+class CategoryStatAdapter : ListAdapter<CategoryStatItem, CategoryStatAdapter.VH>(
+    object : DiffUtil.ItemCallback<CategoryStatItem>() {
+        override fun areItemsTheSame(o: CategoryStatItem, n: CategoryStatItem) =
+            o.category.id == n.category.id
+        override fun areContentsTheSame(o: CategoryStatItem, n: CategoryStatItem) = o == n
+        override fun getChangePayload(o: CategoryStatItem, n: CategoryStatItem): Any? =
+            if (areItemsTheSame(o, n) && !areContentsTheSame(o, n)) StatPayload.REFRESH else null
     }
 ) {
-    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
-        set(value) { field = value; notifyDataSetChanged() }
+    enum class StatPayload { REFRESH }
 
     inner class VH(val binding: ItemCategoryStatBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -202,14 +240,27 @@ class CategoryStatAdapter : ListAdapter<RequirementCategory, CategoryStatAdapter
     )
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val cat = getItem(position)
-        with(holder.binding) {
+        holder.bind(getItem(position), animate = true)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: List<Any>) {
+        if (payloads.any { it == StatPayload.REFRESH }) {
+            holder.bind(getItem(position), animate = false)
+        } else {
+            holder.bind(getItem(position), animate = true)
+        }
+    }
+
+    private fun VH.bind(item: CategoryStatItem, animate: Boolean) {
+        val cat = item.category
+        with(binding) {
+            if (animate) itemView.slideInFromRight(absoluteAdapterPosition)
             tvCatName.text = cat.title
             val color = cat.colorTag.toColorInt()
             viewColor.backgroundTintList = ColorStateList.valueOf(color)
             progressCat.progressTintList = ColorStateList.valueOf(color)
 
-            val stats = statsMap[cat.id]
+            val stats = item.stats
             if (stats != null) {
                 tvCatProgress.text = stats.percentText
                 progressCat.progress = stats.percent
@@ -224,14 +275,16 @@ class CategoryStatAdapter : ListAdapter<RequirementCategory, CategoryStatAdapter
 // ─────────────────────────────────────────────────────────────────────────────
 // TimelineAdapter — mission timeline screen
 // ─────────────────────────────────────────────────────────────────────────────
-class TimelineAdapter : ListAdapter<RequirementCategory, TimelineAdapter.VH>(
-    object : DiffUtil.ItemCallback<RequirementCategory>() {
-        override fun areItemsTheSame(o: RequirementCategory, n: RequirementCategory) = o.id == n.id
-        override fun areContentsTheSame(o: RequirementCategory, n: RequirementCategory) = o == n
+class TimelineAdapter : ListAdapter<CategoryStatItem, TimelineAdapter.VH>(
+    object : DiffUtil.ItemCallback<CategoryStatItem>() {
+        override fun areItemsTheSame(o: CategoryStatItem, n: CategoryStatItem) =
+            o.category.id == n.category.id
+        override fun areContentsTheSame(o: CategoryStatItem, n: CategoryStatItem) = o == n
+        override fun getChangePayload(o: CategoryStatItem, n: CategoryStatItem): Any? =
+            if (areItemsTheSame(o, n) && !areContentsTheSame(o, n)) StatPayload.REFRESH else null
     }
 ) {
-    var statsMap: Map<Long, com.reqsync.app.utils.CategoryProgressHelper.CategoryStats> = emptyMap()
-        set(value) { field = value; notifyDataSetChanged() }
+    enum class StatPayload { REFRESH }
 
     inner class VH(val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -240,17 +293,30 @@ class TimelineAdapter : ListAdapter<RequirementCategory, TimelineAdapter.VH>(
     )
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val cat = getItem(position)
-        with(holder.binding) {
+        holder.bind(getItem(position), animate = true)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: List<Any>) {
+        if (payloads.any { it == StatPayload.REFRESH }) {
+            holder.bind(getItem(position), animate = false)
+        } else {
+            holder.bind(getItem(position), animate = true)
+        }
+    }
+
+    private fun VH.bind(item: CategoryStatItem, animate: Boolean) {
+        val cat = item.category
+        with(binding) {
+            if (animate) itemView.slideInFromRight(absoluteAdapterPosition)
             tvCategoryTitle.text = cat.title
             val color = cat.colorTag.toColorInt()
             viewColorDot.backgroundTintList = ColorStateList.valueOf(color)
             progressCategory.progressTintList = ColorStateList.valueOf(color)
             progressBarFull.progressTintList = ColorStateList.valueOf(color)
-            tvExpandIcon.text = if (position == 0) "◉" else "○"
+            tvExpandIcon.text = if (absoluteAdapterPosition == 0) "◉" else "○"
             btnArchive.visibility = android.view.View.GONE
 
-            val stats = statsMap[cat.id]
+            val stats = item.stats
             if (stats != null) {
                 tvProgressText.text = stats.progressText
                 tvPercent.text = "  •  ${stats.percentText}"

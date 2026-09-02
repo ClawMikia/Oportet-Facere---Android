@@ -70,6 +70,7 @@ class DetailsFragment : Fragment() {
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
+            itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
         }
     }
 

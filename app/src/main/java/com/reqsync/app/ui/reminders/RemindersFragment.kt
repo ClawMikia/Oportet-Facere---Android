@@ -38,6 +38,7 @@ class RemindersFragment : Fragment() {
         adapter = ReminderAdapter { reminder -> viewModel.deleteReminder(reminder) }
         binding.rvReminders.layoutManager = LinearLayoutManager(requireContext())
         binding.rvReminders.adapter = adapter
+        binding.rvReminders.itemAnimator = com.reqsync.app.utils.SlideItemAnimator()
 
         binding.btnAddReminder.setOnClickListener { showDateTimePicker() }
 
